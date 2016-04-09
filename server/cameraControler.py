@@ -142,13 +142,13 @@ class Camera:
             # draw the text and timestamp on the frame
             cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            cv2.putText(frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
-                (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+            #cv2.putText(frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"),
+            #    (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
             # show the frame and record if the user presses a key
             cv2.imshow("Security Feed", frame)
-            cv2.imshow("Thresh", thresh)
-            cv2.imshow("Frame Delta", frameDelta)
+            #cv2.imshow("Thresh", thresh)
+            #cv2.imshow("Frame Delta", frameDelta)
             key = cv2.waitKey(1) & 0xFF
 
             # if the `q` key is pressed, break from the lop
