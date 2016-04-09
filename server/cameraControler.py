@@ -60,7 +60,7 @@ class Multicast:
             if elem[0] == "JOIN":
                 print(elem[1] + " joined!")
                 client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":" + str(self._port))
-                client.appendToAddressList(get_ip_address('eth0')))
+                client.appendToAddressList(get_ip_address('eth0'))
 
 class Camera:
     addressList = []
