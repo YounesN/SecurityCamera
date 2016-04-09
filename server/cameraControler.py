@@ -29,8 +29,8 @@ import xmlrpclib
 from docopt import docopt #for arguments
 
 def get_ip_address(ifname):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(s.fileno(),0x8915, struct.pack('256s', ifname[:15]))[20:24])
+    s = socket(AF_INET, SOCK_DGRAM)
+    return inet_ntoa(fcntl.ioctl(s.fileno(),0x8915, struct.pack('256s', ifname[:15]))[20:24])
 
 class Multicast:
     def __init__(self, host, port, init_camera):
