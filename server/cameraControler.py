@@ -35,6 +35,7 @@ def get_ip_address():
 
 class Multicast:
     def __init__(self, host, port, init_camera):
+        print("initilizing multicast")
         self._host = host
         self._port = port
         self._bufferSize = 1024
@@ -51,6 +52,7 @@ class Multicast:
         cs.sendto('JOIN:' + get_ip_address(), ('255.255.255.255', self._port))
 
     def ReadMultiCastGroupRequest(self):
+        print("in Mul")
         cs = socket(AF_INET, SOCK_DGRAM)
         cs.bind(('255.255.255.255', self._port))
         cs.setblocking(0)
@@ -61,6 +63,7 @@ class Multicast:
             print("received broadcast")
             if elem[0] == "JOIN":
                 print(elem[1] + " joined!")
+                print 'http://' + str(elem[1]) + ":8000"
                 client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":8000")
                 client.appendToAddressList(get_ip_address())
 
@@ -80,9 +83,11 @@ class Camera:
         t = threading.Thread(target=server.serve_forever)
         t.daemon = True
         t.start()
-        self.CameraDetection()
+        tt = threading.Thread(target=self.CameraDetection)
+        tt.daemon = True
+        tt.start()
 
-    def appendToAddressList(self, address):
+    def appendToAddressList(address):
         print(address)
         client = xmlrpclib.ServerProxy('http://' + str(address) + ":8000")
         newAddress = {'address':client, 'heartbeat':0}
@@ -193,3 +198,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    camera = Camera(arguments['--host'], arguments['--port'])
