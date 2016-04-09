@@ -61,7 +61,7 @@ class Multicast:
             elem = msg.split(":")
             if elem[0] == "JOIN":
                 print(elem[1] + " joined!")
-                client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":12375")
+                client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":12374")
                 client.appendToAddressList(get_ip_address())
 
 class Camera:
@@ -72,19 +72,19 @@ class Camera:
     def  __init__(self, host, port):
         self._host = host
         self._port = port
-        server = SimpleXMLRPCServer(("", 12375))
-        server.register_function(self.appendToAddressList)
-        server.register_function(self.heartBeatReturn)
-        server.register_function(self.StartRecording)
-        server.register_function(self.StopRecording)
-        t = threading.Thread(target=server.serve_forever)
+        self.server = SimpleXMLRPCServer(("", 12374))
+        self.server.register_function(self.appendToAddressList)
+        self.server.register_function(self.heartBeatReturn)
+        self.server.register_function(self.StartRecording)
+        self.server.register_function(self.StopRecording)
+        t = threading.Thread(target=self.server.serve_forever)
         t.daemon = True
         t.start()
         self.CameraDetection()
 
     def appendToAddressList(self, address):
         print("inside appendToAddressList")
-        client = xmlrpclib.ServerProxy('http://' + str(address) + ":12375")
+        client = xmlrpclib.ServerProxy('http://' + str(address) + ":12374")
         newAddress = {'address':client, 'heartbeat':0}
         self.addressList.append(newAddress)
 
@@ -179,8 +179,10 @@ class Camera:
 
             firstFrame = gray
 
+    def __exit__(self):
         camera.release()
         cv2.destroyAllWindows()
+        self.server.quit = 1
 
 def main():
     arguments = docopt(__doc__, version="Alpha 1")
