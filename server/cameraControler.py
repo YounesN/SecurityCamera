@@ -23,6 +23,7 @@ import datetime
 import time
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
+import xmlrpclib
 from docopt import docopt #for arguments
 
 
@@ -53,17 +54,21 @@ class Multicast:
             elem = msg.split(":")
             if elem[0] == "JOIN":
                 print(elem[1] + " joined!")
+                client = xmlrpclib.ServerProxy('http://' + elem[1] + ":" + self._port)
+                client.appendToAddressList(getfqdn())
 
 class Camera:
     addressList = []
     recording = False
     motion = False
 
-    def  __init__(self):
+    def  __init__(self, host, port):
+        self._host = host
+        self._port = port
         server = SimpleXMLRPCServer(("localhost", 8000))
         server.register_function(self.appendToAddressList)
         server.register_function(self.heartBeatReturn)
-        server.register_function(self.StartRecordeing)
+        server.register_function(self.StartRecording)
         server.register_function(self.StopRecording)
         t = threading.Thread(target=server.serve_forever)
         t.daemon = True
@@ -71,27 +76,33 @@ class Camera:
         self.CameraDetection()
 
     def appendToAddressList(self, address):
-        newAddress = {'address':address, 'heartbeat':0}
+        print(address)
+        client = xmlrpclib.ServerProxy('http://' + address + ":" + self._port)
+        newAddress = {'address':client, 'heartbeat':0}
         self.addressList.appand(newAddress)
 
     def heartBeatReturn():
         return True;
 
     #we need to change this to a int latter in the future
-    def StartRecordeing(self):
+    def StartRecording(self):
+        cv2.putText(frame, "Starting",
+           (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+
         self._recording = True
 
     def StopRecording(self):
+        cv2.putText(frame, "Stopping",
+            (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+
         self._recording = False
 
     def CameraDetection(self):
-        print("CameraDetection")
         camera = cv2.VideoCapture(0)
         time.sleep(0.25)
         firstFrame = None
 
         text = "Unoccupied"
-        motion = False
 
         # loop over the frames of the video
         while True:
@@ -132,12 +143,16 @@ class Camera:
                 (x, y, w, h) = cv2.boundingRect(c)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-            if ((len(cnts) != 0) & (not motion)):
-                motion = True
+            if ((len(cnts) != 0) & (not self.motion)):
+                self.motion = True
                 text = "Occupied"
-            elif ((len(cnts) == 0) & motion):
-                motion = False
+                for item in self.addressList:
+                    item.address.StartRecording()
+            elif ((len(cnts) == 0) & self.motion):
+                self.motion = False
                 text = "Unoccupied"
+                for item in self.addressList:
+                    item.address.StopRecording()
 
             # draw the text and timestamp on the frame
             cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
@@ -167,7 +182,7 @@ def main():
     if arguments['--port'] == None:
         arguments['--port'] = 9003
     multi = Multicast(arguments['--host'], arguments['--port'], arguments['--init-camera'])
-    camera = Camera()
+    camera = Camera(arguments['--host'], arguments['--port'])
 
 if __name__ == '__main__':
     main()
