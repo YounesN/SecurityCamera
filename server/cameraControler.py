@@ -54,7 +54,7 @@ class Multicast:
             elem = msg.split(":")
             if elem[0] == "JOIN":
                 print(elem[1] + " joined!")
-                client = xmlrpclib.ServerProxy('http://' + elem[1] + ":" + self._port)
+                client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":" + str(self._port))
                 client.appendToAddressList(getfqdn())
 
 class Camera:
@@ -77,7 +77,7 @@ class Camera:
 
     def appendToAddressList(self, address):
         print(address)
-        client = xmlrpclib.ServerProxy('http://' + address + ":" + self._port)
+        client = xmlrpclib.ServerProxy('http://' + str(address) + ":" + str(self._port))
         newAddress = {'address':client, 'heartbeat':0}
         self.addressList.appand(newAddress)
 
