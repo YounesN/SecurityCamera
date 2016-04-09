@@ -196,6 +196,11 @@ def main():
     multi = Multicast(arguments['--host'], arguments['--port'], arguments['--init-camera'])
     camera = Camera(arguments['--host'], arguments['--port'])
 
+    while True:
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord("q"):
+            break
+
 if __name__ == '__main__':
     main()
     camera = Camera(arguments['--host'], arguments['--port'])
