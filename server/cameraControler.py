@@ -63,8 +63,9 @@ class Multicast:
             print("received broadcast")
             if elem[0] == "JOIN":
                 print(elem[1] + " joined!")
-                print 'http://' + str(elem[1]) + ":8000"
-                client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":8000")
+                print 'http://' + str(elem[1]) + ":12376"
+                client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":12376")
+                print get_ip_address()
                 client.appendToAddressList(get_ip_address())
 
 class Camera:
@@ -75,7 +76,7 @@ class Camera:
     def  __init__(self, host, port):
         self._host = host
         self._port = port
-        server = SimpleXMLRPCServer(("localhost", 8000))
+        server = SimpleXMLRPCServer(("", 12376))
         server.register_function(self.appendToAddressList)
         server.register_function(self.heartBeatReturn)
         server.register_function(self.StartRecording)
@@ -83,13 +84,11 @@ class Camera:
         t = threading.Thread(target=server.serve_forever)
         t.daemon = True
         t.start()
-        tt = threading.Thread(target=self.CameraDetection)
-        tt.daemon = True
-        tt.start()
+        self.CameraDetection()
 
     def appendToAddressList(address):
         print(address)
-        client = xmlrpclib.ServerProxy('http://' + str(address) + ":8000")
+        client = xmlrpclib.ServerProxy('http://' + str(address) + ":12376")
         newAddress = {'address':client, 'heartbeat':0}
         self.addressList.appand(newAddress)
 
@@ -195,11 +194,7 @@ def main():
         arguments['--port'] = 9003
     multi = Multicast(arguments['--host'], arguments['--port'], arguments['--init-camera'])
     camera = Camera(arguments['--host'], arguments['--port'])
-
-    while True:
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord("q"):
-            break
+    
 
 if __name__ == '__main__':
     main()
