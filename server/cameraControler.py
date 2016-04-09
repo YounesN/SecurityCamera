@@ -65,13 +65,10 @@ class Camera:
         server.register_function(self.heartBeatReturn)
         server.register_function(self.StartRecordeing)
         server.register_function(self.StopRecording)
-        print("before threading")
-        t = threading.Thread(target=(server.serve_forever()))
+        t = threading.Thread(target=server.serve_forever)
         t.daemon = True
-        print("before start")
         t.start()
-        print("after")
-        CameraDetection()
+        self.CameraDetection()
 
     def appendToAddressList(self, address):
         newAddress = {'address':address, 'heartbeat':0}
@@ -94,6 +91,7 @@ class Camera:
         firstFrame = None
 
         text = "Unoccupied"
+        motion = False
 
         # loop over the frames of the video
         while True:
