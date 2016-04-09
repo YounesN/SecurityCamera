@@ -57,9 +57,10 @@ class Multicast:
             result = select.select([cs],[],[])
             msg = result[0][0].recv(self._bufferSize)
             elem = msg.split(":")
+            print("received broadcast")
             if elem[0] == "JOIN":
                 print(elem[1] + " joined!")
-                client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":" + str(self._port))
+                client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":8000")
                 client.appendToAddressList(get_ip_address('eth0'))
 
 class Camera:
@@ -82,7 +83,7 @@ class Camera:
 
     def appendToAddressList(self, address):
         print(address)
-        client = xmlrpclib.ServerProxy('http://' + str(address) + ":" + str(self._port))
+        client = xmlrpclib.ServerProxy('http://' + str(address) + ":8000")
         newAddress = {'address':client, 'heartbeat':0}
         self.addressList.appand(newAddress)
 
@@ -93,13 +94,13 @@ class Camera:
     def StartRecording(self):
         cv2.putText(frame, "Starting",
            (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-
+        print("Start Recording")
         self._recording = True
 
     def StopRecording(self):
         cv2.putText(frame, "Stopping",
             (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-
+        print("Stop Recording")
         self._recording = False
 
     def CameraDetection(self):
