@@ -21,11 +21,16 @@ import imutils
 import select
 import datetime
 import time
+import fcntl
+import struct
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 import xmlrpclib
 from docopt import docopt #for arguments
 
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(s.fileno(),0x8915, struct.pack('256s', ifname[:15]))[20:24])
 
 class Multicast:
     def __init__(self, host, port, init_camera):
@@ -42,7 +47,7 @@ class Multicast:
         cs = socket(AF_INET, SOCK_DGRAM)
         cs.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         cs.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
-        cs.sendto('JOIN:' + getfqdn(), ('255.255.255.255', self._port))
+        cs.sendto('JOIN:' + get_ip_address('eth0'), ('255.255.255.255', self._port))
 
     def ReadMultiCastGroupRequest(self):
         cs = socket(AF_INET, SOCK_DGRAM)
@@ -55,7 +60,7 @@ class Multicast:
             if elem[0] == "JOIN":
                 print(elem[1] + " joined!")
                 client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":" + str(self._port))
-                client.appendToAddressList(getfqdn())
+                client.appendToAddressList(get_ip_address('eth0')))
 
 class Camera:
     addressList = []
