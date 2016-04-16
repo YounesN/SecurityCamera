@@ -121,14 +121,14 @@ class Camera:
 
     #we need to change this to a int latter in the future
     def StartRecording(self):
-        cv2.putText(frame, "Starting",
-           (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+        #cv2.putText(frame, "Starting",
+        #   (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
         print("Start Recording")
         self._recording = True
 
     def StopRecording(self):
-        cv2.putText(frame, "Stopping",
-            (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+        #cv2.putText(frame, "Stopping",
+        #    (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
         print("Stop Recording")
         self._recording = False
 
@@ -153,7 +153,7 @@ class Camera:
                 break
 
             # resize the frame, convert it to grayscale, and blur it
-            frame = imutils.resize(frame, width=500)
+            frame = imutils.resize(frame, width=1000)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
