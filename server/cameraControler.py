@@ -107,7 +107,7 @@ class Camera:
                     if item['address'].heartBeatReturn():
                         item['heartbeat'] = 0
                         print 'heartbeat =)'
-                except ValueError:
+                except EnvironmentError:
                     item['heartbeat'] =+ 1;
                     if item['heartbeat'] > 2:
                         addressList.remove(item)
@@ -190,7 +190,7 @@ class Camera:
                 for item in self.addressList:
                     try:
                         item['address'].StartRecording()
-                    except ValueError:
+                    except EnvironmentError:
                         print 'Couldnt send startRecording signal'
             elif ((len(cnts) == 0) & self.motion):
                 self.motion = False
@@ -198,7 +198,7 @@ class Camera:
                 for item in self.addressList:
                     try:
                         item['address'].StopRecording()
-                    except ValueError:
+                    except EnvironmentError:
                         print 'Couldnt send stopRecording signal'
 
             # draw the text and timestamp on the frame
