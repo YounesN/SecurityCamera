@@ -103,13 +103,15 @@ class Camera:
         while True:
             time.sleep(30)
             for item in self.addressList:
-                if item['address'].heartBeatReturn():
-                    print 'heartbeat =)'
-                    continue;
-                print 'heartbeat =('
-                item['heartbeat'] =+ 1;
-                if item['heartbeat'] > 2:
-                    addressList.remove(item)
+                try:
+                    if item['address'].heartBeatReturn():
+                        item['heartbeat'] = 0
+                        print 'heartbeat =)'
+                except ValueError:
+                    item['heartbeat'] =+ 1;
+                    if item['heartbeat'] > 2:
+                        addressList.remove(item)
+
 
     def appendToAddressList(self, address):
         print("inside appendToAddressList")
@@ -186,12 +188,18 @@ class Camera:
                 self.motion = True
                 text = "Occupied"
                 for item in self.addressList:
-                    item['address'].StartRecording()
+                    try:
+                        item['address'].StartRecording()
+                    except valueError:
+                        print 'Couldnt send startRecording signal'
             elif ((len(cnts) == 0) & self.motion):
                 self.motion = False
                 text = "Unoccupied"
                 for item in self.addressList:
-                    item['address'].StopRecording()
+                    try:
+                        item['address'].StopRecording()
+                    except:
+                        print 'Couldnt send stopRecording signal'
 
             # draw the text and timestamp on the frame
             cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
