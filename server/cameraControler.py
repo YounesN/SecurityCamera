@@ -184,7 +184,7 @@ class Camera:
                 self.motion = True
                 text = "Occupied"
                 for item in self.addressList:
-                    item.address.StartRecording()
+                    item['address'].StartRecording()
             elif ((len(cnts) == 0) & self.motion):
                 self.motion = False
                 text = "Unoccupied"
