@@ -37,11 +37,12 @@ def get_ip_address():
     return s.getsockname()[0]
 
 class Multicast:
-    def __init__(self, host, port, init_camera):
+    def __init__(self, host, port, init_camera, addressList):
         print("initilizing multicast")
         self._host = host
         self._port = port
         self._bufferSize = 1024
+        self._addressList = addressList;
         if not init_camera:
             self.joinMultiCastGroup()
         t = threading.Thread(target=self.ReadMultiCastGroupRequest)
@@ -64,12 +65,14 @@ class Multicast:
             elem = msg.split(":")
             if elem[0] == "JOIN":
                 print(elem[1] + " joined!")
-                client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":12374",allow_none=True)
-                client.appendToAddressList(get_ip_address())
+                client = xmlrpclib.ServerProxy('http://' + str(elem[1]) +  ":12374",allow_none=True)
+                client.appendToAddressList(get_ip_address())                
+                newAddress = {'address': client, 'heartbeat':0}
+                self.address.append(newAddress)
                 print("After cliect rpc call")
 
 class Camera:
-    def  __init__(self, host, port, device):
+    def  __init__(self, host, port, device, init_camera):
         self.addressList = []
         self.recording = False
         self.motion = False
@@ -88,6 +91,7 @@ class Camera:
         t = threading.Thread(target=self.networkChecker)
         t.daemon = True
         t.start()
+        Multicast(host, port, init_camera, self.addressList)
         self.CameraDetection()
 
     def __exit__(self):
@@ -106,11 +110,6 @@ class Camera:
                 item['heartbeat'] =+ 1;
                 if item['heartbeat'] > 2:
                     addressList.remove(item)
-
-
-    def addToAddressList(self, address):
-        newAddress = {'address': address, 'heartbeat':0}
-        self.address.append(newAddress)
 
     def appendToAddressList(self, address):
         print("inside appendToAddressList")
@@ -219,8 +218,7 @@ class Camera:
 
 def main():
     arguments = docopt(__doc__, version=__version__)
-    multi = Multicast(arguments['--host'], int(arguments['--port']), arguments['--init-camera'])
-    camera = Camera(arguments['--host'], int(arguments['--port']), int(arguments['--device']))
+    camera = Camera(arguments['--host'], int(arguments['--port']), int(arguments['--device']), arguments['--init-camera'])
 
 if __name__ == '__main__':
     main()
