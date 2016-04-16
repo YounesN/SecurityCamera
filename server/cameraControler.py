@@ -69,7 +69,7 @@ class Multicast:
                 print >> sys.stderr,  ("After cliect rpc call")
 
 class Camera:
-        def  __init__(self, host, port, device):
+    def  __init__(self, host, port, device):
         self.addressList = []
         self.recording = False
         self.motion = False
