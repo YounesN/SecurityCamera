@@ -67,7 +67,7 @@ class Multicast:
                 print(elem[1] + " joined!")
                 client = xmlrpclib.ServerProxy('http://' + str(elem[1]) +  ":12374",allow_none=True)
                 client.appendToAddressList(get_ip_address())
-                newAddress = {'address': client, 'heartbeat':0}
+                newAddress = {'address': client, 'heartbeat':0, 'recording':False, 'ip': str(elem[1])}
                 self._addressList.append(newAddress)
                 print("After cliect rpc call")
 
@@ -79,6 +79,7 @@ class Camera:
         self._host = host
         self._port = port
         self._device = device
+        self._myIPaddress = get_ip_address();
         self.server = SimpleXMLRPCServer(("", 12374),allow_none=True)
         self.server.register_introspection_functions()
         self.server.register_function(self.appendToAddressList)
@@ -114,9 +115,8 @@ class Camera:
 
 
     def appendToAddressList(self, address):
-        print("inside appendToAddressList")
         client = xmlrpclib.ServerProxy('http://' + str(address) + ":12374", allow_none=True)
-        newAddress = {'address':client, 'heartbeat':0}
+        newAddress = {'address':client, 'heartbeat':0, 'recording':False, 'ip': str(address)}
         self.addressList.append(newAddress)
 
     def heartBeatReturn(self):
@@ -124,17 +124,35 @@ class Camera:
         return True;
 
     #we need to change this to a int latter in the future
-    def StartRecording(self):
+    def StartRecording(self, address):
         #cv2.putText(frame, "Starting",
         #   (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+        precount = 0
         print("Start Recording")
-        self._recording = True
+        for item in self.addressList:
+            if item['recording'] == True:
+                precount += 1
+            if item['ip'] == address:
+                item['recording'] = True
 
-    def StopRecording(self):
+        count = 0
+        for item in self.addressList:
+            if item['recording'] == True:
+                count += 1
+        if count == 1 and precount == 0:
+            print ("sending email")
+            #send email
+
+
+
+    def StopRecording(self, address):
         #cv2.putText(frame, "Stopping",
         #    (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
         print("Stop Recording")
-        self._recording = False
+        for item in self.addressList:
+            if item['ip'] == address:
+                item['recording'] = False
+
 
     def CameraDetection(self):
         camera = cv2.VideoCapture(self._device)
@@ -189,7 +207,7 @@ class Camera:
                 text = "Occupied"
                 for item in self.addressList:
                     try:
-                        item['address'].StartRecording()
+                        item['address'].StartRecording(self._myIPaddress)
                     except EnvironmentError:
                         print 'Couldnt send startRecording signal'
             elif ((len(cnts) == 0) & self.motion):
@@ -197,7 +215,7 @@ class Camera:
                 text = "Unoccupied"
                 for item in self.addressList:
                     try:
-                        item['address'].StopRecording()
+                        item['address'].StopRecording(self._myIPaddress)
                     except EnvironmentError:
                         print 'Couldnt send stopRecording signal'
 
