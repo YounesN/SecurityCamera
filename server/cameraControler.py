@@ -189,7 +189,7 @@ class Camera:
                 self.motion = False
                 text = "Unoccupied"
                 for item in self.addressList:
-                    item.address.StopRecording()
+                    item['address'].StopRecording()
 
             # draw the text and timestamp on the frame
             cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
