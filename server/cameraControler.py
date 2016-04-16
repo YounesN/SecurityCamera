@@ -116,7 +116,7 @@ class Camera:
         newAddress = {'address':client, 'heartbeat':0}
         self.addressList.append(newAddress)
 
-    def heartBeatReturn():
+    def heartBeatReturn(self):
         return True;
 
     #we need to change this to a int latter in the future
@@ -179,7 +179,7 @@ class Camera:
                 # and update the text
                 (x, y, w, h) = cv2.boundingRect(c)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                
+
             if ((len(cnts) != 0) & (not self.motion)):
                 self.motion = True
                 text = "Occupied"
