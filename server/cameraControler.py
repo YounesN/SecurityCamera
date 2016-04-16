@@ -66,9 +66,9 @@ class Multicast:
             if elem[0] == "JOIN":
                 print(elem[1] + " joined!")
                 client = xmlrpclib.ServerProxy('http://' + str(elem[1]) +  ":12374",allow_none=True)
-                client.appendToAddressList(get_ip_address())                
+                client.appendToAddressList(get_ip_address())
                 newAddress = {'address': client, 'heartbeat':0}
-                self.address.append(newAddress)
+                self._addressList.append(newAddress)
                 print("After cliect rpc call")
 
 class Camera:
