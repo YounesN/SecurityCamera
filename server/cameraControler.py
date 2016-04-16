@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 """
 Usage:
-	cameraControler.py [options]
-	cameraControler.py --version
-	cameraControler.py (--help | -h)
+    cameraControler.py [options]
+    cameraControler.py --version
+    cameraControler.py (--help | -h)
 Options:
-	--init-camera	first camera
-	--port=<port>	change default port [default: 9003]
-	--host=<host>	change default default multicast address [default: 244.1.1.1]
-	-h --help       shows this help message and exits
-	--version    	shows the version number
-	-a --min-area   minimum area size
+    --init-camera   first camera
+    --port=<port>   change default port [default: 9003]
+    --device=<devive>     device id [default: 0]
+    --host=<host>   change default default multicast address [default: 244.1.1.1]
+    -h --help       shows this help message and exits
+    --version       shows the version number
+    -a --min-area   minimum area size
 """
 
 import sys
@@ -27,6 +28,8 @@ from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 import xmlrpclib
 from docopt import docopt #for arguments
+
+__version__ = "Beta 1"
 
 def get_ip_address():
     s = socket(AF_INET, SOCK_DGRAM)
@@ -60,19 +63,21 @@ class Multicast:
             msg = result[0][0].recv(self._bufferSize)
             elem = msg.split(":")
             if elem[0] == "JOIN":
-                print(elem[1] + " joined!")
+                print >> sys.stderr,  (elem[1] + " joined!")
                 client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":12374")
                 client.appendToAddressList(get_ip_address())
+                print >> sys.stderr,  ("After cliect rpc call")
 
 class Camera:
-    addressList = []
-    recording = False
-    motion = False
-
-    def  __init__(self, host, port):
+        def  __init__(self, host, port, device):
+        self.addressList = []
+        self.recording = False
+        self.motion = False
         self._host = host
         self._port = port
+        self._device = device
         self.server = SimpleXMLRPCServer(("", 12374))
+        self.server.register_introspection_functions()
         self.server.register_function(self.appendToAddressList)
         self.server.register_function(self.heartBeatReturn)
         self.server.register_function(self.StartRecording)
@@ -80,10 +85,29 @@ class Camera:
         t = threading.Thread(target=self.server.serve_forever)
         t.daemon = True
         t.start()
+        t = threading.Thread(target=self.networkChecker)
+        t.daemon = True
+        t.start()
         self.CameraDetection()
 
+    def __exit__(self):
+        camera.release()
+        cv2.destroyAllWindows()
+        self.server.quit = 1
+
+    def networkChecker(self):
+        while True:
+            time.sleep(30)
+            for item in self.addressList:
+                if item.address.heartBeatReturn():
+                    continue;
+                item.heartbeat =+ 1;
+                if item.hearbreat > 2:
+                    addressList.remove(item)
+
+
     def appendToAddressList(self, address):
-        print("inside appendToAddressList")
+        print >> sys,stderr, ("inside appendToAddressList")
         client = xmlrpclib.ServerProxy('http://' + str(address) + ":12374")
         newAddress = {'address':client, 'heartbeat':0}
         self.addressList.append(newAddress)
@@ -105,10 +129,12 @@ class Camera:
         self._recording = False
 
     def CameraDetection(self):
-        camera = cv2.VideoCapture(0)
+        camera = cv2.VideoCapture(self._device)
         time.sleep(0.25)
         firstFrame = None
-
+        counter = 0
+        freezeFrame = 20
+        frameList = {}
         text = "Unoccupied"
 
         # loop over the frames of the video
@@ -176,24 +202,19 @@ class Camera:
             # if the `q` key is pressed, break from the lop
             if key == ord("q"):
                 break
+            # print counter % freezeFrame
+            if counter >= freezeFrame:
+                #print "in"
+                firstFrame = frameList[counter % freezeFrame]
 
-            firstFrame = gray
-
-    def __exit__(self):
-        camera.release()
-        cv2.destroyAllWindows()
-        self.server.quit = 1
+            frameList[counter % freezeFrame] = gray
+            counter += 1
 
 def main():
-    arguments = docopt(__doc__, version="Alpha 1")
-    if arguments['--host'] == None:
-        arguments['--host'] = '244.1.1.1'
-    if arguments['--port'] == None:
-        arguments['--port'] = 9003
-    multi = Multicast(arguments['--host'], arguments['--port'], arguments['--init-camera'])
-    camera = Camera(arguments['--host'], arguments['--port'])
-    
+    arguments = docopt(__doc__, version=__version__)
+    multi = Multicast(arguments['--host'], int(arguments['--port']), arguments['--init-camera'])
+    camera = Camera(arguments['--host'], int(arguments['--port']), int(arguments['--device']))
 
 if __name__ == '__main__':
     main()
-    camera = Camera(arguments['--host'], arguments['--port'])
+
