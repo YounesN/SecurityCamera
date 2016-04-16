@@ -100,7 +100,9 @@ class Camera:
             time.sleep(30)
             for item in self.addressList:
                 if item['address'].heartBeatReturn():
+                    print 'heartbeat =)'
                     continue;
+                print 'heartbeat =('
                 item['heartbeat'] =+ 1;
                 if item['heartbeat'] > 2:
                     addressList.remove(item)
@@ -117,6 +119,7 @@ class Camera:
         self.addressList.append(newAddress)
 
     def heartBeatReturn(self):
+        print 'recived heartbeat'
         return True;
 
     #we need to change this to a int latter in the future
