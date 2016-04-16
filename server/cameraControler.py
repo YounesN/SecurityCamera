@@ -207,7 +207,9 @@ class Camera:
                 text = "Occupied"
                 for item in self.addressList:
                     try:
+                        print('Trying to send startRecording')
                         item['address'].StartRecording(self._myIPaddress)
+                        print('After Trying to send startRecording')
                     except EnvironmentError:
                         print 'Couldnt send startRecording signal'
             elif ((len(cnts) == 0) & self.motion):
@@ -215,7 +217,9 @@ class Camera:
                 text = "Unoccupied"
                 for item in self.addressList:
                     try:
+                        print('Trying to send stopRecording')
                         item['address'].StopRecording(self._myIPaddress)
+                        print('Aster Trying to send stopRecording')
                     except EnvironmentError:
                         print 'Couldnt send stopRecording signal'
 
