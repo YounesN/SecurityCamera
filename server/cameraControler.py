@@ -99,10 +99,10 @@ class Camera:
         while True:
             time.sleep(30)
             for item in self.addressList:
-                if item.address.heartBeatReturn():
+                if item['address'].heartBeatReturn():
                     continue;
-                item.heartbeat =+ 1;
-                if item.hearbreat > 2:
+                item['heartbeat'] =+ 1;
+                if item['heartbeat'] > 2:
                     addressList.remove(item)
 
 
@@ -179,7 +179,7 @@ class Camera:
                 # and update the text
                 (x, y, w, h) = cv2.boundingRect(c)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
+                
             if ((len(cnts) != 0) & (not self.motion)):
                 self.motion = True
                 text = "Occupied"
