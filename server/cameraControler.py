@@ -63,10 +63,10 @@ class Multicast:
             msg = result[0][0].recv(self._bufferSize)
             elem = msg.split(":")
             if elem[0] == "JOIN":
-                print >> sys.stderr,  (elem[1] + " joined!")
+                print(elem[1] + " joined!")
                 client = xmlrpclib.ServerProxy('http://' + str(elem[1]) + ":12374")
                 client.appendToAddressList(get_ip_address())
-                print >> sys.stderr,  ("After cliect rpc call")
+                print("After cliect rpc call")
 
 class Camera:
     def  __init__(self, host, port, device):
@@ -111,7 +111,7 @@ class Camera:
         self.address.append(newAddress)
 
     def appendToAddressList(self, address):
-        print >> sys,stderr, ("inside appendToAddressList")
+        print("inside appendToAddressList")
         client = xmlrpclib.ServerProxy('http://' + str(address) + ":12374")
         newAddress = {'address':client, 'heartbeat':0}
         self.addressList.append(newAddress)
