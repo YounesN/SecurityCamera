@@ -190,7 +190,7 @@ class Camera:
                 for item in self.addressList:
                     try:
                         item['address'].StartRecording()
-                    except valueError:
+                    except ValueError:
                         print 'Couldnt send startRecording signal'
             elif ((len(cnts) == 0) & self.motion):
                 self.motion = False
@@ -198,7 +198,7 @@ class Camera:
                 for item in self.addressList:
                     try:
                         item['address'].StopRecording()
-                    except:
+                    except ValueError:
                         print 'Couldnt send stopRecording signal'
 
             # draw the text and timestamp on the frame
