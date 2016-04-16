@@ -28,6 +28,8 @@ from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 import xmlrpclib
 from docopt import docopt #for arguments
+import smtplib
+from email.mime.text import MIMEText
 
 __version__ = "Beta 1"
 
@@ -140,9 +142,13 @@ class Camera:
             if item['recording'] == True:
                 count += 1
         if count == 1 and precount == 0:
-            print ("sending email")
-            #send email
-
+            msg = MIMEText("Alert! motion detected")
+            msg['Subject'] = 'Alert!'
+            msg['From'] = 'alert@security.com'
+            msg['To'] = 'younes.nej2008@gmail.com'
+            s = smtplib.SMTP('localhost')
+            s.sendmail('alert@security.com', ['younes.nej2008@gmail.com'], msg.as_string())
+            s.quit()
 
 
     def StopRecording(self, address):
