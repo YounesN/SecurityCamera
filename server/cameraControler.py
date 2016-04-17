@@ -118,7 +118,7 @@ class Camera:
 
     def appendToAddressList(self, address):
         client = xmlrpclib.ServerProxy('http://' + str(address) + ":12374", allow_none=True)
-        newAddress = {'address':client, 'heartbeat':0, 'recording':False, 'ip': str(address)}
+        newAddress = {'address':client, 'heartbeat':0, 'recording':False, 'ip':str(address)}
         self.addressList.append(newAddress)
 
     def heartBeatReturn(self):
