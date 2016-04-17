@@ -146,7 +146,11 @@ class Camera:
             msg['Subject'] = 'Alert!'
             msg['From'] = 'alert@security.com'
             msg['To'] = 'younes.nej2008@gmail.com'
-            s = smtplib.SMTP('localhost')
+            s = smtplib.SMTP('smtp.gmail.com:587')
+            s.ehlo()
+            s.starttls()
+            s.ehlo()
+            s.login("testdummyemailforproject@gmail.com", "test123!@#")
             s.sendmail('alert@security.com', ['younes.nej2008@gmail.com'], msg.as_string())
             s.quit()
 
