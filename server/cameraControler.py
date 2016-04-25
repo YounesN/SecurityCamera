@@ -168,9 +168,6 @@ class Camera:
         camera = cv2.VideoCapture(self._device)
         time.sleep(0.25)
         firstFrame = None
-        counter = 0
-        freezeFrame = 20
-        frameList = {}
         text = "Unoccupied"
 
         # loop over the frames of the video
@@ -195,7 +192,7 @@ class Camera:
                 continue
 
             # compute the absolute difference between the current frame and
-            # first frame
+            # the previous frame
             frameDelta = cv2.absdiff(firstFrame, gray)
             thresh = cv2.threshold(frameDelta, 25, 255, cv2.THRESH_BINARY)[1]
 
@@ -248,13 +245,6 @@ class Camera:
             # if the `q` key is pressed, break from the lop
             if key == ord("q"):
                 break
-            # print counter % freezeFrame
-            if counter >= freezeFrame:
-                #print "in"
-                firstFrame = frameList[counter % freezeFrame]
-
-            frameList[counter % freezeFrame] = gray
-            counter += 1
 
 def main():
     arguments = docopt(__doc__, version=__version__)
