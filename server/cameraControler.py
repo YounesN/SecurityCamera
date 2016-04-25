@@ -242,6 +242,8 @@ class Camera:
             #cv2.imshow("Frame Delta", frameDelta)
             key = cv2.waitKey(1) & 0xFF
 
+            firstFrame = gray
+
             # if the `q` key is pressed, break from the lop
             if key == ord("q"):
                 break
